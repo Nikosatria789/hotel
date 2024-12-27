@@ -1,0 +1,65 @@
+<?php
+// Menampilkan error untuk memudahkan debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+// Tentukan folder tujuan upload dengan path absolut
+$target_dir = $_SERVER['DOCUMENT_ROOT'] . "/hotel/uploads/";  // Absolute path
+$target_file = $target_dir . basename($_FILES["gambar"]["name"]);
+$uploadOk = 1;  // Flag untuk pengecekan upload file
+$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION)); // Mendapatkan tipe file
+
+// Pastikan folder 'uploads/' ada dan dapat diakses
+if (!file_exists($target_dir)) {
+    mkdir($target_dir, 0777, true);  // Membuat folder jika belum ada
+}
+
+// Cek apakah file yang diupload adalah gambar
+if (isset($_POST["submit"])) {
+    $check = getimagesize($_FILES["gambar"]["tmp_name"]);
+    if ($check !== false) {
+        echo "File adalah gambar - " . $check["mime"] . ".";
+        $uploadOk = 1;
+    } else {
+        echo "File yang diupload bukan gambar.";
+        $uploadOk = 0;
+    }
+}
+
+// Cek apakah file sudah ada
+if (file_exists($target_file)) {
+    echo "Maaf, file sudah ada.";
+    $uploadOk = 0;
+}
+
+// Batasi ukuran file (misalnya maksimal 5MB)
+if ($_FILES["gambar"]["size"] > 5000000) {  // 5MB
+    echo "Maaf, ukuran file terlalu besar.";
+    $uploadOk = 0;
+}
+
+// Batasi tipe file yang diperbolehkan (hanya .jpg, .png, .jpeg, .gif)
+if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
+    echo "Maaf, hanya file gambar dengan format JPG, JPEG, PNG, dan GIF yang diperbolehkan.";
+    $uploadOk = 0;
+}
+
+// Jika semua pengecekan lolos, coba untuk upload file
+if ($uploadOk == 0) {
+    echo "Maaf, file Anda tidak dapat diupload.";
+} else {
+    // Proses upload file
+    if (move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file)) {
+        echo "Kamar berhasil ditambahkan!";
+    } else {
+        echo "Maaf, terjadi kesalahan saat mengupload gambar.";
+    }
+}
+
+// Menyimpan inisial dari email user
+$user_email = 'example@example.com';  // Gantilah dengan email yang valid, misalnya dari session atau database
+$initials = strtoupper(substr($user_email, 0, 1));  // Ambil inisial dari email
+
+// Tampilkan inisial user
+echo "Inisial User: " . $initials;
+?>
